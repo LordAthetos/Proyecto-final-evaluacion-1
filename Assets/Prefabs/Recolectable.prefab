@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4071483969801302873}
   - component: {fileID: -4266129209569812341}
-  - component: {fileID: 1707120489786540155}
+  - component: {fileID: 4365334819910210832}
   m_Layer: 0
   m_Name: Recolectable
-  m_TagString: Untagged
+  m_TagString: Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -46,20 +46,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4c7ca2de8644d844bf7161aead88d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!64 &1707120489786540155
-MeshCollider:
+--- !u!135 &4365334819910210832
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2942977681896537221}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4937014479139585219
 GameObject:
   m_ObjectHideFlags: 0

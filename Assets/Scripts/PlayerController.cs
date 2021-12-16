@@ -11,6 +11,11 @@ public class PlayerController : MonoBehaviour
     private float horizontalInput;
     private float verticalInput;
     private float turnSpeed = 40f;
+    private float gravityModifier = 0;
+    private Rigidbody playerRigidbody;
+
+    private AudioSource playerAudioSource;
+    private AudioSource cameraAudioSource;
 
     //Limites del mapa
     private float posXRange = 200f;
@@ -25,24 +30,30 @@ public class PlayerController : MonoBehaviour
 
     public GameObject recoletable;
     public GameObject obstacle;
-    public GameObject projectilePrefab;
+    
 
     private float spawnRate = 5f;
 
-    private int score;
+    public int score;
 
+    public AudioClip coinClip;
+    public AudioClip explosionClip;
 
-    // Start is called before the first frame update
+    private float coinNum =10f;
+
     void Start()
     {
-
+       playerAudioSource = GetComponent<AudioSource>();
+       cameraAudioSource = GameObject.Find("Main Camera").GetComponent<AudioSource>();
+       Physics.gravity *= gravityModifier;
+       playerRigidbody = GetComponent<Rigidbody>();
        // Player empieza en la posicion inicial
        transform.position = initialPos;
        
        score = 0;
 
        // Spawnea 10 recolectables 
-       for (float coinInstances = 10f; coinInstances >= 0; coinInstances -= 1f) 
+       for (float coinInstances = coinNum; coinInstances >= 0; coinInstances -= 1f) 
        {
            randomCooridinates = RandomPosition();
            Instantiate(recoletable, randomCooridinates,recoletable.transform.rotation);
@@ -54,14 +65,17 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        
+        if (!gameOver)
+        {
+            // Movimiento hacia delante y controlador de rotacion
+            horizontalInput = Input.GetAxis("Horizontal");
+            verticalInput = Input.GetAxis("Vertical");
+            transform.Translate(Vector3.forward * Time.deltaTime * forwardSpeed);
 
-        // Movimiento hacia delante y controlador de rotacion
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
-        transform.Translate(Vector3.forward * Time.deltaTime * forwardSpeed);
-
-        transform.Rotate(Vector3.up, turnSpeed * Time.deltaTime * horizontalInput);
-        transform.Rotate(Vector3.right, turnSpeed * Time.deltaTime * -verticalInput);
+            transform.Rotate(Vector3.up, turnSpeed * Time.deltaTime * horizontalInput);
+            transform.Rotate(Vector3.right, turnSpeed * Time.deltaTime * -verticalInput);
+        }
 
         // limites en X
         if (transform.position.x > posXRange)
@@ -97,13 +111,12 @@ public class PlayerController : MonoBehaviour
             transform.position = new Vector3(transform.position.x, transform.position.y, negZRange);
         }
 
-        // Disparo
-        if (Input.GetKeyDown(KeyCode.RightControl))
+        // Sonido de disparo
+        if (Input.GetKeyDown(KeyCode.RightControl)) 
         {
-            
-            Instantiate(projectilePrefab, transform.position,
-                projectilePrefab.transform.rotation = transform.rotation);
+            playerAudioSource.PlayOneShot(explosionClip, 1);
         }
+        
 
     }
 
@@ -127,22 +140,38 @@ public class PlayerController : MonoBehaviour
         }
 
     }
-
-     private void OnCollisionEnter(Collision otherCollider)
+    
+    // Colisiones
+    private void OnTriggerEnter(Collider otherTrigger)
     {
-        if (!gameOver)
-        {
-            if (otherCollider.gameObject.CompareTag("Collectible"))
+        
+        if (!gameOver)       
+        {          
+            if (otherTrigger.gameObject.CompareTag("Collectible"))
             {
+               Destroy(otherTrigger.gameObject);
+               score = score + 1;
+               playerAudioSource.PlayOneShot(coinClip, 1);
+
+               // El juego se acaba cuando se recogen todos los recolectables
+               if (score == coinNum)
+               {
+                   Debug.Log("Has ganado!");
+                   cameraAudioSource.volume = 0.01f;
+                   gameOver = true;
+               }
                
             }
-            else if (otherCollider.gameObject.CompareTag("Obstacle"))
-            {
 
+            else if (otherTrigger.gameObject.CompareTag("Obstacle"))
+            {
+                // comunicamos que hemos muerto
+                Debug.Log("GAME OVER");
+                cameraAudioSource.volume = 0.01f;
                 gameOver = true;
             }
         }
 
     }
-
+    
 }
